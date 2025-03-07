@@ -33,15 +33,17 @@ class HomePage extends StatelessWidget {
                             return MessageCard(
                               text: message.text,
                               isUser: message.isUser,
+                              responseStreamController:
+                                  message.responseStreamController,
                             );
                           },
                         ),
               ),
-              if (chatProvider.isLoading)
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: CircularProgressIndicator(),
-                ),
+              // if (chatProvider.isLoading)
+              //   const Padding(
+              //     padding: EdgeInsets.all(8.0),
+              //     child: CircularProgressIndicator(),
+              //   ),
               ChatInput(onSend: (text) => chatProvider.sendMessage(text)),
             ],
           );

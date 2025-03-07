@@ -5,13 +5,20 @@ import 'package:flutter_code_editor/flutter_code_editor.dart';
 import 'package:flutter/services.dart';
 import 'package:highlight/languages/all.dart' as highlight;
 import 'package:share_plus/share_plus.dart';
+import 'dart:async';
 
-/// Enhanced MessageCard with Markdown and VS Code-themed code editor
+/// Enhanced MessageCard with Markdown, VS Code-themed code editor, and live response
 class MessageCard extends StatelessWidget {
   final String text;
   final bool isUser;
+  final StreamController<String>? responseStreamController; // Made nullable
 
-  const MessageCard({required this.text, required this.isUser, super.key});
+  const MessageCard({
+    required this.text,
+    required this.isUser,
+    this.responseStreamController, // Optional for user messages
+    super.key,
+  });
 
   /// Processes raw text to detect code blocks and clean regular text
   (String, bool, String) _processText(String rawText) {
@@ -24,9 +31,7 @@ class MessageCard extends StatelessWidget {
       String language = '';
       String code = content;
 
-      if (lines.isNotEmpty &&
-          lines.first.isNotEmpty &&
-          !lines.first.contains(RegExp(r'[^\w]'))) {
+      if (lines.isNotEmpty && lines.first.isNotEmpty && !lines.first.contains(RegExp(r'[^\w]'))) {
         language = lines.first.toLowerCase();
         code = lines.sublist(1).join('\n').trim();
       }
@@ -39,8 +44,24 @@ class MessageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (processedText, isCode, language) = _processText(text);
+    // Use StreamBuilder only for non-user messages with a stream controller
+    if (!isUser && responseStreamController != null) {
+      return StreamBuilder<String>(
+        stream: responseStreamController!.stream,
+        initialData: text, // Show initial text until stream updates
+        builder: (context, snapshot) {
+          final (processedText, isCode, language) = _processText(snapshot.data ?? '');
+          return _buildCard(context, processedText, isCode, language);
+        },
+      );
+    } else {
+      // For user messages or no stream, use static text
+      final (processedText, isCode, language) = _processText(text);
+      return _buildCard(context, processedText, isCode, language);
+    }
+  }
 
+  Widget _buildCard(BuildContext context, String processedText, bool isCode, String language) {
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: ConstrainedBox(
@@ -66,10 +87,9 @@ class MessageCard extends StatelessWidget {
           ),
           child: Padding(
             padding: const EdgeInsets.all(14.0),
-            child:
-                isCode
-                    ? _buildEnhancedCodeEditor(context, processedText, language)
-                    : _buildMarkdownText(context, processedText),
+            child: isCode
+                ? _buildEnhancedCodeEditor(context, processedText, language)
+                : _buildMarkdownText(context, processedText),
           ),
         ),
       ),
@@ -115,9 +135,9 @@ class MessageCard extends StatelessWidget {
       selectable: true,
       onTapLink: (text, href, title) {
         if (href != null) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Opening link: $href')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Opening link: $href')),
+          );
         }
       },
     );
@@ -130,23 +150,21 @@ class MessageCard extends StatelessWidget {
   ) {
     final codeController = CodeController(
       text: code,
-      language:
-          highlight.allLanguages[language] ??
-          highlight.allLanguages['plaintext'],
+      language: highlight.allLanguages[language] ?? highlight.allLanguages['plaintext'],
     );
 
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E), // VS Code Dark+ black background
+        color: const Color(0xFF1E1E1E), // Pure black VS Code background
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFF3C3C3C), // VS Code border grey
-          width: 1,
+          color: const Color(0xFF3C3C3C), // Subtle grey border
+          width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 8,
+            color: Colors.black.withOpacity(0.25),
+            blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
@@ -156,9 +174,9 @@ class MessageCard extends StatelessWidget {
         children: [
           // Header with language and actions
           Container(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: const BoxDecoration(
-              color: Color(0xFF252526), // VS Code title bar color
+              color: Color(0xFF252526), // VS Code header bar color
               borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
             ),
             child: Row(
@@ -167,8 +185,8 @@ class MessageCard extends StatelessWidget {
                 Text(
                   language.isNotEmpty ? language.toUpperCase() : 'TEXT',
                   style: const TextStyle(
-                    color: Color(0xFF9CDCFE), // VS Code blue for identifiers
-                    fontSize: 13,
+                    color: Color(0xFF9CDCFE), // VS Code blue for language
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'JetBrains Mono',
                   ),
@@ -178,9 +196,8 @@ class MessageCard extends StatelessWidget {
                     _buildActionButton(
                       icon: Icons.copy,
                       tooltip: 'Copy code',
-                      color: const Color(
-                        0xFF4EC9B0,
-                      ), // VS Code teal for functions
+                      iconColor: const Color(0xFF4EC9B0), // Teal for copy
+                      backgroundColor: const Color(0xFF2D2D2D), // Darker button bg
                       onTap: () {
                         Clipboard.setData(ClipboardData(text: code));
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -192,9 +209,8 @@ class MessageCard extends StatelessWidget {
                     _buildActionButton(
                       icon: Icons.share,
                       tooltip: 'Share code',
-                      color: const Color(
-                        0xFFFFC107,
-                      ), // VS Code yellow for keywords
+                      iconColor: const Color(0xFFFFC107), // Yellow for share
+                      backgroundColor: const Color(0xFF2D2D2D), // Darker button bg
                       onTap: () => Share.share(code),
                     ),
                   ],
@@ -207,19 +223,16 @@ class MessageCard extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             child: Container(
               padding: const EdgeInsets.all(16.0),
+              color: const Color(0xFF1E1E1E), // Solid black background
               child: CodeField(
                 controller: codeController,
                 textStyle: const TextStyle(
                   fontSize: 15,
                   fontFamily: 'JetBrains Mono',
-                  color: Color(
-                    0xFFD4D4D4,
-                  ), // VS Code light grey for default text
+                  color: Color(0xFFD4D4D4), // VS Code light grey for text
                   height: 1.4,
                 ),
-                background: const Color(
-                  0xFF1E1E1E,
-                ), // Match container background
+                background: const Color(0xFF1E1E1E), // Consistent black
                 gutterStyle: GutterStyle(
                   textStyle: TextStyle(
                     color: const Color(0xFF858585), // VS Code gutter grey
@@ -238,23 +251,25 @@ class MessageCard extends StatelessWidget {
   Widget _buildActionButton({
     required IconData icon,
     required String tooltip,
-    required Color color,
+    required Color iconColor,
+    required Color backgroundColor,
     required VoidCallback onTap,
   }) {
     return Tooltip(
       message: tooltip,
       child: Material(
-        color: const Color(0xFF3C3C3C), // VS Code button background
+        color: backgroundColor, // Custom background for visibility
         borderRadius: BorderRadius.circular(6),
+        elevation: 2, // Slight elevation for depth
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(6),
           child: Padding(
-            padding: const EdgeInsets.all(6.0),
+            padding: const EdgeInsets.all(8.0), // Increased padding
             child: Icon(
               icon,
-              size: 20,
-              color: color, // Custom VS Code-inspired colors
+              size: 22, // Larger icons for visibility
+              color: iconColor, // Vibrant icon colors
             ),
           ),
         ),

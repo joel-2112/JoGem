@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 
 class ApiService {
   final Dio _dio = Dio();
-  final String _apiKey = 'AIzaSyCrrcrdolBtwTE6JtO6wEINz7mYnam5GJ0 ';
+  final String _apiKey = 'AIzaSyCrrcrdolBtwTE6JtO6wEINz7mYnam5GJ0'; // No trailing space
   final String _baseUrl =
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
