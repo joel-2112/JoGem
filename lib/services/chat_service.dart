@@ -3,10 +3,9 @@ import 'package:dio/dio.dart';
 
 class ApiService {
   final Dio _dio = Dio();
-  final String _apiKey =
-      'AIzaSyCrrcrdolBtwTE6JtO6wEINz7mYnam5GJ0 '; 
+  final String _apiKey = 'AIzaSyCrrcrdolBtwTE6JtO6wEINz7mYnam5GJ0 ';
   final String _baseUrl =
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
   Future<String> getGeminiResponse(String prompt) async {
     try {

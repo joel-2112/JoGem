@@ -38,6 +38,9 @@ dependencies:
   provider: ^6.1.2
   flutter_highlighter: ^0.1.1
   flutter_dotenv: ^5.2.1
+  flutter_code_editor: ^0.3.2
+  flutter_markdown: ^0.7.6+2
+  share_plus: ^10.1.4
 
 dev_dependencies:
   flutter_test:
