@@ -25,7 +25,9 @@ class HomePage extends StatelessWidget {
               Expanded(
                 child:
                     chatProvider.messages.isEmpty
-                        ? const Center(child: Text('Write something to start!'))
+                        ? const Center(
+                          child: Text('Write something to start...'),
+                        )
                         : ListView.builder(
                           itemCount: chatProvider.messages.length,
                           itemBuilder: (context, index) {
@@ -38,12 +40,7 @@ class HomePage extends StatelessWidget {
                             );
                           },
                         ),
-              ),
-              // if (chatProvider.isLoading)
-              //   const Padding(
-              //     padding: EdgeInsets.all(8.0),
-              //     child: CircularProgressIndicator(),
-              //   ),
+              ),            
               ChatInput(onSend: (text) => chatProvider.sendMessage(text)),
             ],
           );

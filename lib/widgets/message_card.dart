@@ -254,7 +254,8 @@ class MessageCard extends StatelessWidget {
     required Color iconColor,
     required Color backgroundColor,
     required VoidCallback onTap,
-  }) {
+  }) 
+  {
     return Tooltip(
       message: tooltip,
       child: Material(

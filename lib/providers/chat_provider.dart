@@ -1,4 +1,5 @@
 // lib/providers/chat_provider.dart
+
 import 'package:flutter/material.dart';
 import 'package:jogem/models/chat_model.dart';
 
@@ -10,7 +11,6 @@ class ChatProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();
   List<Message> _messages = [];
   bool _isLoading = false;
-
   List<Message> get messages => _messages;
   bool get isLoading => _isLoading;
 
@@ -32,7 +32,6 @@ class ChatProvider with ChangeNotifier {
     try {
       // Fetch response from Gemini API via ApiService
       final response = await _apiService.getGeminiResponse(prompt);
-
       // Stream the response character by character for live effect
       for (int i = 0; i < response.length; i++) {
         await Future.delayed(const Duration(milliseconds: 30)); // Simulate streaming
