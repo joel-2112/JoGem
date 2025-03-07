@@ -163,7 +163,7 @@ class MessageCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.25),
+            color: Colors.black.withAlpha(64), // 0.25 * 255 = 64
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

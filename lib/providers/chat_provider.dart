@@ -21,11 +21,13 @@ class ChatProvider with ChangeNotifier {
 
     // Prepare for AI response with a StreamController
     final responseController = StreamController<String>.broadcast();
-    _messages.add(Message(
-      text: '',
-      isUser: false,
-      responseStreamController: responseController,
-    ));
+    _messages.add(
+      Message(
+        text: '',
+        isUser: false,
+        responseStreamController: responseController,
+      ),
+    );
     _isLoading = true;
     notifyListeners();
 
@@ -34,7 +36,9 @@ class ChatProvider with ChangeNotifier {
       final response = await _apiService.getGeminiResponse(prompt);
       // Stream the response character by character for live effect
       for (int i = 0; i < response.length; i++) {
-        await Future.delayed(const Duration(milliseconds: 30)); // Simulate streaming
+        await Future.delayed(
+          const Duration(milliseconds: 5),
+        ); // Simulate streaming
         final chunk = response.substring(0, i + 1);
         responseController.add(chunk);
         _messages.last = Message(
