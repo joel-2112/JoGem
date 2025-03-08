@@ -13,6 +13,5 @@ class Config {
   static String get apiKey => dotenv.env['API_KEY'] ?? 'Not available';
   static String get baseUrl => dotenv.env['BASE_URL'] ?? 'Not available';
 
-  // Add more getters as needed for other variables
-  static String get someOtherVariable => dotenv.env['SOME_OTHER_VARIABLE'] ?? 'default_value';
+  // Add more getters as needed
 }

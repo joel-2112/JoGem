@@ -16,7 +16,7 @@ class HomePage extends StatelessWidget {
         elevation: 0,
         backgroundColor: Colors.grey.shade100,
         centerTitle: true,
-        title: const Text('JoGem -> AI'),
+        title: const Text('JoGem'),
       ),
       body: Consumer<ChatProvider>(
         builder: (context, chatProvider, child) {
@@ -40,7 +40,7 @@ class HomePage extends StatelessWidget {
                             );
                           },
                         ),
-              ),            
+              ),
               ChatInput(onSend: (text) => chatProvider.sendMessage(text)),
             ],
           );
